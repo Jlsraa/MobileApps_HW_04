@@ -19,7 +19,7 @@ class ApiErrorState extends ApiblocState {
 }
 
 class ApiListState extends ApiblocState {
-  final String url;
+  final url;
 
   ApiListState({required this.url});
 

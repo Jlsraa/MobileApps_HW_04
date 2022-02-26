@@ -27,7 +27,19 @@ class _ProfileState extends State<Profile> {
   ScreenshotController _screenshotController = ScreenshotController();
 
   Column clientData(ApiListState state) {
-    return Column();
+    List<CuentaItem> accounts = [];
+    for (var account in state.url["Sheet 1"]) {
+      accounts.add(
+        CuentaItem(
+          saldoDisponible: "${account["dinero"]}",
+          terminacion: "${account["tarjeta"]}".substring(4),
+          tipoCuenta: "${account["cuenta"]}",
+        ),
+      );
+    }
+    return Column(
+      children: accounts,
+    );
   }
 
   Future _captureAndShare() async {
