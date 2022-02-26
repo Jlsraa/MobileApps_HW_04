@@ -6,3 +6,5 @@ abstract class ApiblocEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+class ApiEvent extends ApiblocEvent {}

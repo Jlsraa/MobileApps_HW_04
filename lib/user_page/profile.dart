@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:money_track/user_page/bloc/apibloc_bloc.dart';
 import 'package:money_track/user_page/bloc/picture_bloc.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:path_provider/path_provider.dart';
@@ -25,6 +26,10 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   ScreenshotController _screenshotController = ScreenshotController();
 
+  Column clientData(ApiListState state) {
+    return Column();
+  }
+
   Future _captureAndShare() async {
     await _screenshotController
         .capture(delay: const Duration(milliseconds: 10))
@@ -38,6 +43,12 @@ class _ProfileState extends State<Profile> {
         await Share.shareFiles([imagePath.path]);
       }
     });
+  }
+
+  @override
+  void initState() {
+    BlocProvider.of<ApiblocBloc>(context).add(ApiEvent());
+    super.initState();
   }
 
   @override
@@ -138,7 +149,7 @@ class _ProfileState extends State<Profile> {
                     ),
                     DescribedFeatureOverlay(
                       featureId: 'view_tutorial_feature_id',
-                      tapTarget: Icon(Icons.camera),
+                      tapTarget: Icon(Icons.play_arrow),
                       title: Text('Ver Tutorial'),
                       description: Text('Muestra el funcionamiento de la app.'),
                       overflowMode: OverflowMode.extendBackground,
@@ -157,9 +168,39 @@ class _ProfileState extends State<Profile> {
                   ],
                 ),
                 SizedBox(height: 48),
-                CuentaItem(),
-                CuentaItem(),
-                CuentaItem(),
+                Column(
+                  children: [
+                    BlocConsumer<ApiblocBloc, ApiblocState>(
+                      builder: (context, state) {
+                        if (state is ApiLoadingState) {
+                          return CircularProgressIndicator();
+                        } else if (state is ApiListState) {
+                          return clientData(state);
+                        } else {
+                          return Text("Lo sentimos, ha ocurrido un error");
+                        }
+                      },
+                      listener: (context, state) {
+                        if (state is ApiLoadingState) {
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Cargando...")),
+                          );
+                        } else if (state is ApiErrorState) {
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Hubo un error")),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Listo")),
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                )
               ],
             ),
           ),
